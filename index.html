@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0D4A2A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AfriaBridge" />
+  <meta name="description" content="Transfert d'argent & colis Diaspora ↔ Afrique" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- Icons (inline SVG-based, no external dep) -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+
+  <title>AfriaBridge</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div class="splash-logo">
+      <div class="splash-icon">🌍</div>
+      <span class="splash-name">AfriaBridge</span>
+    </div>
+    <div class="splash-loader">
+      <div class="splash-bar"></div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
+
+    <!-- AUTH SCREENS -->
+    <div id="screen-auth" class="screen active">
+      <div class="auth-bg">
+        <div class="auth-orb auth-orb-1"></div>
+        <div class="auth-orb auth-orb-2"></div>
+        <div class="auth-orb auth-orb-3"></div>
+      </div>
+      <div class="auth-content">
+        <div class="auth-header">
+          <div class="auth-logo">🌍</div>
+          <h1 class="auth-title">AfriaBridge</h1>
+          <p class="auth-subtitle">Diaspora ↔ Afrique<br/>Argent & Colis, Sécurisés</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="form-login" class="auth-form">
+          <h2 class="form-heading">Connexion</h2>
+          <div class="field-group">
+            <label class="field-label">Email</label>
+            <input class="field-input" type="email" id="login-email" placeholder="votre@email.com" autocomplete="email" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Mot de passe</label>
+            <div class="field-password">
+              <input class="field-input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+              <button class="btn-eye" onclick="togglePassword('login-password', this)">👁</button>
+            </div>
+          </div>
+          <div id="login-error" class="form-error hidden"></div>
+          <button class="btn-primary" onclick="handleLogin()">
+            <span class="btn-text">Se connecter</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+          <p class="form-switch">Pas encore de compte ? <button class="link-btn" onclick="showForm('register')">Créer un compte</button></p>
+          <p class="form-switch"><button class="link-btn" onclick="showScreen('forgot')">Mot de passe oublié ?</button></p>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="form-register" class="auth-form hidden">
+          <h2 class="form-heading">Créer un compte</h2>
+          <div class="fields-row">
+            <div class="field-group">
+              <label class="field-label">Prénom</label>
+              <input class="field-input" type="text" id="reg-firstname" placeholder="Jean" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Nom</label>
+              <input class="field-input" type="text" id="reg-lastname" placeholder="Dupont" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email</label>
+            <input class="field-input" type="email" id="reg-email" placeholder="votre@email.com" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Téléphone</label>
+            <div class="field-phone">
+              <select class="field-select" id="reg-dialcode">
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+1">🇨🇦 +1</option>
+                <option value="+32">🇧🇪 +32</option>
+                <option value="+41">🇨🇭 +41</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+221">🇸🇳 +221</option>
+                <option value="+225">🇨🇮 +225</option>
+                <option value="+237">🇨🇲 +237</option>
+                <option value="+224">🇬🇳 +224</option>
+                <option value="+243">🇨🇩 +243</option>
+                <option value="+212">🇲🇦 +212</option>
+              </select>
+              <input class="field-input" type="tel" id="reg-phone" placeholder="06 00 00 00 00" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Pays de résidence</label>
+            <select class="field-input field-select-full" id="reg-country">
+              <option value="FR">🇫🇷 France</option>
+              <option value="CA">🇨🇦 Canada</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="CH">🇨🇭 Suisse</option>
+              <option value="GB">🇬🇧 Royaume-Uni</option>
+              <option value="SN">🇸🇳 Sénégal</option>
+              <option value="CI">🇨🇮 Côte d'Ivoire</option>
+              <option value="CM">🇨🇲 Cameroun</option>
+              <option value="GN">🇬🇳 Guinée</option>
+              <option value="CD">🇨🇩 RD Congo</option>
+              <option value="MA">🇲🇦 Maroc</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Mot de passe</label>
+            <div class="field-password">
+              <input class="field-input" type="password" id="reg-password" placeholder="Min. 8 caractères" />
+              <button class="btn-eye" onclick="togglePassword('reg-password', this)">👁</button>
+            </div>
+          </div>
+          <div id="reg-error" class="form-error hidden"></div>
+          <button class="btn-primary" onclick="handleRegister()">
+            <span class="btn-text">Créer mon compte</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+          <p class="form-switch">Déjà inscrit ? <button class="link-btn" onclick="showForm('login')">Se connecter</button></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOME SCREEN -->
+    <div id="screen-home" class="screen">
+      <div class="topbar">
+        <div class="topbar-user">
+          <div class="avatar" id="home-avatar">JD</div>
+          <div class="topbar-info">
+            <span class="topbar-greeting">Bonjour,</span>
+            <span class="topbar-name" id="home-username">Utilisateur</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" onclick="showScreen('notifications')" title="Notifications">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="notif-dot"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="scroll-body">
+        <!-- KYC Banner -->
+        <div id="kyc-banner" class="kyc-banner hidden">
+          <div class="kyc-banner-icon">⚠️</div>
+          <div class="kyc-banner-text">
+            <strong>Vérifiez votre identité</strong>
+            <span>Pour débloquer les transferts</span>
+          </div>
+          <button class="kyc-banner-btn" onclick="showScreen('kyc')">Vérifier →</button>
+        </div>
+
+        <!-- Balance Card -->
+        <div class="balance-card">
+          <div class="balance-card-bg"></div>
+          <div class="balance-header">
+            <span class="balance-label">Solde disponible</span>
+            <button class="balance-eye" onclick="toggleBalance()" title="Afficher/masquer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="balance-amount" id="balance-display">0,00 <span class="balance-currency">EUR</span></div>
+          <div class="balance-actions">
+            <button class="balance-btn" onclick="showScreen('send-money')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Envoyer
+            </button>
+            <button class="balance-btn balance-btn-outline" onclick="showScreen('history')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Historique
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Rate Widget -->
+        <div class="rate-widget">
+          <div class="rate-widget-header">
+            <span class="rate-widget-title">Taux en direct</span>
+            <span class="rate-live-dot">● Live</span>
+          </div>
+          <div class="rate-list" id="rate-list">
+            <div class="rate-item"><span class="rate-pair">EUR → XOF</span><span class="rate-value loading">Chargement…</span></div>
+            <div class="rate-item"><span class="rate-pair">EUR → XAF</span><span class="rate-value loading">Chargement…</span></div>
+            <div class="rate-item"><span class="rate-pair">CAD → XOF</span><span class="rate-value loading">Chargement…</span></div>
+            <div class="rate-item"><span class="rate-pair">USD → GNF</span><span class="rate-value loading">Chargement…</span></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-title">Actions rapides</div>
+        <div class="quick-actions">
+          <button class="qa-btn" onclick="showScreen('send-money')">
+            <div class="qa-icon qa-icon-green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </div>
+            <span>Envoyer</span>
+          </button>
+          <button class="qa-btn" onclick="showScreen('send-parcel')">
+            <div class="qa-icon qa-icon-amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <span>Colis</span>
+          </button>
+          <button class="qa-btn" onclick="showScreen('track')">
+            <div class="qa-icon qa-icon-blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span>Suivre</span>
+          </button>
+          <button class="qa-btn" onclick="showScreen('kyc')">
+            <div class="qa-icon qa-icon-purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <span>KYC</span>
+          </button>
+        </div>
+
+        <!-- Recent transactions -->
+        <div class="section-title">Transactions récentes</div>
+        <div id="recent-transactions" class="transactions-list">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>Aucune transaction récente</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEND MONEY SCREEN -->
+    <div id="screen-send-money" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Envoyer de l'argent</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <!-- Amount input -->
+        <div class="send-card">
+          <label class="field-label">Vous envoyez</label>
+          <div class="amount-input-wrap">
+            <input class="amount-input" type="number" id="send-amount" placeholder="0" min="5" max="10000" oninput="debounceQuote()" />
+            <select class="currency-select" id="send-from" onchange="debounceQuote()">
+              <option value="EUR">🇪🇺 EUR</option>
+              <option value="USD">🇺🇸 USD</option>
+              <option value="CAD">🇨🇦 CAD</option>
+              <option value="GBP">🇬🇧 GBP</option>
+              <option value="CHF">🇨🇭 CHF</option>
+            </select>
+          </div>
+
+          <div class="transfer-arrow">
+            <div class="transfer-arrow-line"></div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <label class="field-label">Le bénéficiaire reçoit</label>
+          <div class="amount-input-wrap">
+            <div class="amount-received" id="amount-received">—</div>
+            <select class="currency-select" id="send-to" onchange="debounceQuote()">
+              <option value="XOF">🇸🇳 XOF</option>
+              <option value="XAF">🇨🇲 XAF</option>
+              <option value="GNF">🇬🇳 GNF</option>
+              <option value="CDF">🇨🇩 CDF</option>
+              <option value="MAD">🇲🇦 MAD</option>
+              <option value="NGN">🇳🇬 NGN</option>
+              <option value="KES">🇰🇪 KES</option>
+              <option value="USD">🇺🇸 USD</option>
+              <option value="EUR">🇪🇺 EUR</option>
+            </select>
+          </div>
+
+          <!-- Quote details -->
+          <div id="quote-details" class="quote-details hidden">
+            <div class="quote-row"><span>Taux de change</span><span id="q-rate">—</span></div>
+            <div class="quote-row"><span>Frais AfriaBridge</span><span id="q-fee">—</span></div>
+            <div class="quote-row quote-row-total"><span>Total débité</span><span id="q-total">—</span></div>
+            <div class="quote-row"><span>Délai estimé</span><span>1–3 jours ouvrables</span></div>
+          </div>
+          <div id="quote-loading" class="quote-loading hidden">Calcul en cours…</div>
+        </div>
+
+        <!-- Recipient -->
+        <div class="send-card">
+          <label class="field-label">Bénéficiaire</label>
+          <input class="field-input" type="email" id="recipient-email" placeholder="Email du bénéficiaire" />
+          <div class="field-group" style="margin-top:12px">
+            <label class="field-label">Motif (optionnel)</label>
+            <input class="field-input" type="text" id="transfer-note" placeholder="Loyer, famille, business…" maxlength="100" />
+          </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="send-card">
+          <label class="field-label">Mode de paiement</label>
+          <div class="payment-methods">
+            <label class="payment-option">
+              <input type="radio" name="payment" value="card" checked />
+              <div class="payment-option-content">
+                <span class="payment-icon">💳</span>
+                <span>Carte bancaire</span>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="bank_transfer" />
+              <div class="payment-option-content">
+                <span class="payment-icon">🏦</span>
+                <span>Virement bancaire</span>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="wave" />
+              <div class="payment-option-content">
+                <span class="payment-icon">📱</span>
+                <span>Wave</span>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="orange_money" />
+              <div class="payment-option-content">
+                <span class="payment-icon">🟠</span>
+                <span>Orange Money</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div id="send-error" class="form-error hidden" style="margin:0 16px"></div>
+        <button class="btn-primary btn-full" onclick="handleSendMoney()">
+          <span class="btn-text">Continuer</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+        <div style="height:32px"></div>
+      </div>
+    </div>
+
+    <!-- SEND PARCEL SCREEN -->
+    <div id="screen-send-parcel" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Envoyer un colis</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <div class="parcel-tabs">
+          <button class="parcel-tab active" onclick="switchParcelTab('send', this)">J'envoie un colis</button>
+          <button class="parcel-tab" onclick="switchParcelTab('carry', this)">Je suis voyageur</button>
+        </div>
+
+        <!-- Send a parcel -->
+        <div id="tab-send" class="parcel-tab-content">
+          <div class="send-card">
+            <label class="field-label">Description du colis</label>
+            <input class="field-input" type="text" id="parcel-title" placeholder="Ex: Vêtements pour ma famille" />
+            <div class="field-group" style="margin-top:12px">
+              <label class="field-label">Détails supplémentaires</label>
+              <textarea class="field-input field-textarea" id="parcel-desc" placeholder="Contenu, précautions particulières…" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="send-card">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label">Poids (kg)</label>
+                <input class="field-input" type="number" id="parcel-weight" placeholder="2.5" min="0.1" max="30" step="0.1" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Valeur déclarée (€)</label>
+                <input class="field-input" type="number" id="parcel-value" placeholder="150" min="0" />
+              </div>
+            </div>
+            <div class="fields-row" style="margin-top:12px">
+              <div class="field-group">
+                <label class="field-label">Pays départ</label>
+                <select class="field-input field-select-full" id="parcel-from">
+                  <option value="FR">🇫🇷 France</option>
+                  <option value="CA">🇨🇦 Canada</option>
+                  <option value="BE">🇧🇪 Belgique</option>
+                  <option value="CH">🇨🇭 Suisse</option>
+                  <option value="GB">🇬🇧 Royaume-Uni</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Pays destination</label>
+                <select class="field-input field-select-full" id="parcel-to">
+                  <option value="SN">🇸🇳 Sénégal</option>
+                  <option value="CI">🇨🇮 Côte d'Ivoire</option>
+                  <option value="CM">🇨🇲 Cameroun</option>
+                  <option value="GN">🇬🇳 Guinée</option>
+                  <option value="CD">🇨🇩 RD Congo</option>
+                  <option value="MA">🇲🇦 Maroc</option>
+                  <option value="ML">🇲🇱 Mali</option>
+                  <option value="SN">🇸🇳 Sénégal</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="send-card">
+            <label class="field-label">Date de voyage souhaitée</label>
+            <input class="field-input" type="date" id="parcel-date" />
+            <div class="field-group" style="margin-top:12px">
+              <label class="field-label">Budget proposé au transporteur (€)</label>
+              <input class="field-input" type="number" id="parcel-price" placeholder="30" min="5" />
+            </div>
+            <div class="insurance-toggle" style="margin-top:16px">
+              <label class="toggle-label">
+                <input type="checkbox" id="parcel-insurance" class="toggle-input" />
+                <span class="toggle-switch"></span>
+                <span>Assurance colis (+2% valeur déclarée)</span>
+              </label>
+            </div>
+          </div>
+          <div id="parcel-error" class="form-error hidden" style="margin:0 16px"></div>
+          <button class="btn-primary btn-full" onclick="handleSendParcel()">
+            <span class="btn-text">Publier l'annonce</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+        </div>
+
+        <!-- I'm a carrier -->
+        <div id="tab-carry" class="parcel-tab-content hidden">
+          <div class="send-card">
+            <div class="carrier-info-box">
+              <span class="carrier-info-icon">✈️</span>
+              <p>Vous voyagez et avez de la place dans vos bagages ? Publiez votre trajet et gagnez de l'argent en transportant des colis vérifiés.</p>
+            </div>
+          </div>
+          <div class="send-card">
+            <div class="fields-row">
+              <div class="field-group">
+                <label class="field-label">Départ</label>
+                <select class="field-input field-select-full" id="carrier-from">
+                  <option value="FR">🇫🇷 France</option>
+                  <option value="CA">🇨🇦 Canada</option>
+                  <option value="BE">🇧🇪 Belgique</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Destination</label>
+                <select class="field-input field-select-full" id="carrier-to">
+                  <option value="SN">🇸🇳 Sénégal</option>
+                  <option value="CI">🇨🇮 Côte d'Ivoire</option>
+                  <option value="CM">🇨🇲 Cameroun</option>
+                </select>
+              </div>
+            </div>
+            <div class="fields-row" style="margin-top:12px">
+              <div class="field-group">
+                <label class="field-label">Date de départ</label>
+                <input class="field-input" type="date" id="carrier-date" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Poids disponible (kg)</label>
+                <input class="field-input" type="number" id="carrier-weight" placeholder="10" />
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary btn-full" onclick="handlePublishCarrier()">
+            <span class="btn-text">Publier mon trajet</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+        </div>
+        <div style="height:32px"></div>
+      </div>
+    </div>
+
+    <!-- TRACK PARCEL SCREEN -->
+    <div id="screen-track" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Suivi de colis</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <div class="send-card">
+          <label class="field-label">Numéro de suivi</label>
+          <div class="track-input-wrap">
+            <input class="field-input" type="text" id="track-code" placeholder="AFB-XXXXXX" style="text-transform:uppercase" />
+            <button class="btn-track" onclick="handleTrack()">Suivre</button>
+          </div>
+        </div>
+        <div id="track-result" class="track-result hidden"></div>
+      </div>
+    </div>
+
+    <!-- KYC SCREEN -->
+    <div id="screen-kyc" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Vérification KYC</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <div class="kyc-hero">
+          <div class="kyc-hero-icon">🛡️</div>
+          <h3>Vérification d'identité</h3>
+          <p>Sécurisez votre compte et débloquez tous les transferts en vérifiant votre identité. Processus rapide (moins de 5 minutes).</p>
+        </div>
+
+        <div class="kyc-steps">
+          <div class="kyc-step" id="kstep-1">
+            <div class="kyc-step-num">1</div>
+            <div class="kyc-step-info">
+              <strong>Pièce d'identité</strong>
+              <span>Passeport, CNI ou titre de séjour</span>
+            </div>
+            <div class="kyc-step-status" id="kstep-1-status">⏳</div>
+          </div>
+          <div class="kyc-step" id="kstep-2">
+            <div class="kyc-step-num">2</div>
+            <div class="kyc-step-info">
+              <strong>Selfie de vérification</strong>
+              <span>Photo avec votre pièce d'identité</span>
+            </div>
+            <div class="kyc-step-status" id="kstep-2-status">⏳</div>
+          </div>
+          <div class="kyc-step" id="kstep-3">
+            <div class="kyc-step-num">3</div>
+            <div class="kyc-step-info">
+              <strong>Vérification du numéro</strong>
+              <span>Code SMS sur votre téléphone</span>
+            </div>
+            <div class="kyc-step-status" id="kstep-3-status">⏳</div>
+          </div>
+        </div>
+
+        <div class="kyc-upload-zone" id="kyc-upload-id">
+          <input type="file" id="kyc-id-file" accept="image/*,.pdf" class="upload-input" onchange="handleKYCUpload('id', this)" />
+          <label for="kyc-id-file" class="upload-label">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text">Cliquez ou glissez votre pièce d'identité</span>
+            <span class="upload-hint">JPG, PNG ou PDF • Max 10Mo</span>
+          </label>
+        </div>
+
+        <button class="btn-primary btn-full" onclick="handleSubmitKYC()" style="margin-top:8px">
+          <span class="btn-text">Soumettre pour vérification</span>
+        </button>
+        <div style="height:32px"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY SCREEN -->
+    <div id="screen-history" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Historique</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <div class="history-filters">
+          <button class="filter-btn active" onclick="filterHistory('all', this)">Tous</button>
+          <button class="filter-btn" onclick="filterHistory('transfer', this)">Transferts</button>
+          <button class="filter-btn" onclick="filterHistory('parcel', this)">Colis</button>
+        </div>
+        <div id="history-list" class="transactions-list">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>Aucune transaction pour le moment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div id="screen-profile" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" onclick="goBack()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 class="screen-title">Mon profil</h2>
+        <div></div>
+      </div>
+      <div class="scroll-body">
+        <div class="profile-header-card">
+          <div class="profile-avatar" id="profile-avatar">JD</div>
+          <div class="profile-info">
+            <h3 id="profile-name">Jean Dupont</h3>
+            <p id="profile-email">jean@example.com</p>
+            <div class="kyc-badge" id="profile-kyc-badge">KYC Niveau 0</div>
+          </div>
+          <div class="profile-score">
+            <span class="score-stars">★★★★★</span>
+            <span class="score-val" id="profile-score">5.0</span>
+          </div>
+        </div>
+
+        <div class="profile-menu">
+          <button class="menu-item" onclick="showScreen('kyc')">
+            <span class="menu-icon">🛡️</span><span>Vérification KYC</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="menu-item" onclick="showScreen('history')">
+            <span class="menu-icon">📋</span><span>Historique complet</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="menu-item" onclick="showScreen('track')">
+            <span class="menu-icon">📦</span><span>Suivre un colis</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="menu-item" onclick="showNotifSettings()">
+            <span class="menu-icon">🔔</span><span>Notifications</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="menu-item" onclick="showSupport()">
+            <span class="menu-icon">💬</span><span>Support & Aide</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="menu-item menu-item-danger" onclick="handleLogout()">
+            <span class="menu-icon">🚪</span><span>Déconnexion</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <div class="app-version">AfriaBridge v1.0.0 • Confidentiel</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-btn active" data-screen="home" onclick="showScreen('home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Accueil</span>
+      </button>
+      <button class="nav-btn" data-screen="send-money" onclick="showScreen('send-money')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>Transfert</span>
+      </button>
+      <button class="nav-btn" data-screen="send-parcel" onclick="showScreen('send-parcel')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        <span>Colis</span>
+      </button>
+      <button class="nav-btn" data-screen="profile" onclick="showScreen('profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
+      </button>
+    </nav>
+
+  </div><!-- /#app -->
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast-container"></div>
+
+  <!-- MODAL OVERLAY -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+    <div class="modal" id="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
